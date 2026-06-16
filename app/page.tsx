@@ -233,18 +233,18 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="px-4 pb-10 pt-16 text-center">
+      <section className="px-4 pb-7 pt-10 text-center sm:pt-12">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-3 text-xs uppercase tracking-[0.28em] text-[#5c6378]">
+          <p className="mb-2 text-xs uppercase tracking-[0.28em] text-[#5c6378]">
             Search GitHub Before You Build
           </p>
-          <h1 className="mb-4 text-3xl font-bold sm:text-5xl">
+          <h1 className="mb-3 text-3xl font-bold sm:text-5xl">
             <span className="gradient-text">写代码前，先查 GitHub 有没有成熟轮子</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-sm leading-7 text-[#8b92a5] sm:text-base">
+          <p className="mx-auto max-w-4xl overflow-hidden text-ellipsis whitespace-nowrap text-xs text-[#8b92a5] sm:text-sm">
             输入你的应用想法，DevDetective 会先做开源侦查，再告诉你更适合 fork、参考，还是从零开发。
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-sm">
             <a
               href="#experience"
               className="rounded-full bg-primary-600 px-5 py-2 text-white transition-colors hover:bg-primary-500"
@@ -269,8 +269,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="experience" className="mx-auto max-w-6xl px-4 pb-8">
-        <div className="mx-auto mb-4 max-w-2xl rounded-lg border border-[#2d3343]/50 bg-[#11141c] px-4 py-3 text-xs text-[#8b92a5]">
+      <section id="experience" className="mx-auto max-w-6xl px-4 pb-6">
+        <div className="mx-auto mb-3 max-w-2xl rounded-lg border border-[#2d3343]/50 bg-[#11141c] px-4 py-3 text-xs text-[#8b92a5]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span>体验版用于快速验证需求方向，不替代本地开源完整版。</span>
             {experienceMeta.mode === "hosted" ? (
@@ -288,7 +288,7 @@ export default function Home() {
 
         <RequirementInput onSearch={handleSearch} isLoading={isLoading} />
 
-        <div className="mx-auto mt-4 max-w-2xl">
+        <div className="mx-auto mt-3 max-w-2xl">
           <FilterPanel filters={filters} onChange={setFilters} disabled={isLoading} />
         </div>
       </section>
@@ -464,7 +464,7 @@ export default function Home() {
           <div id="ai2work" className="glass-card px-5 py-4">
             <h3 className="mb-2 text-sm font-medium text-[#8b92a5]">AI2Work 部署定位</h3>
             <p className="text-xs leading-6 text-[#5c6378]">
-              推荐部署到 `ai2work.xyz/devdetective` 或 `devdetective.ai2work.xyz`，作为在线体验入口、案例展示页和托管版导流页。
+              推荐部署到 `ai2work.xyz/DevDetective` 或 `devdetective.ai2work.xyz`，作为在线体验入口、案例展示页和托管版导流页。
             </p>
           </div>
           <p>DevDetective · 开发者侦探 · 面向 AI 编程时代的开源侦查工具</p>

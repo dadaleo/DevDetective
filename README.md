@@ -106,26 +106,27 @@ DevDetective 的目标，就是把这一步前置。
 
 ## Online Demo | 在线体验
 
-Planned deployment targets:
+Live experience URL:
 
-- `ai2work.xyz/devdetective`
-- `devdetective.ai2work.xyz`
+- [https://ai2work.xyz/DevDetective](https://ai2work.xyz/DevDetective)
 
-当前仓库以本地运行和开源发布为主，在线体验版还在整理中。
+当前仓库以本地运行和开源发布为主，同时提供 AI2Work 托管体验版用于快速试用与案例展示。
 
 ## Hosted Demo Limits | 托管体验版限制
 
-For hosted mode, the recommended default is:
+For hosted mode, the current default is:
 
-- 3 investigations per day
+- 2 investigations per 6 hours for the same IP
 - Top 5 results by default
+- a gentle GitHub Star prompt on the 2nd successful investigation
 - lightweight validation, not a replacement for the full local version
 
 可通过环境变量启用：
 
 ```ini
 HOSTED_EXPERIENCE_MODE=true
-HOSTED_DAILY_LIMIT=3
+HOSTED_LIMIT_WINDOW_HOURS=6
+HOSTED_MAX_QUERIES_PER_WINDOW=2
 HOSTED_MAX_RESULTS=5
 ```
 
@@ -270,6 +271,12 @@ See:
 
 - [devdetective-skill/README.md](devdetective-skill/README.md)
 
+Current status:
+
+- the repository already includes the skill directory, scripts, examples, and usage docs
+- the skill depends on a reachable DevDetective server plus a Python runtime with `requests`
+- before sharing it broadly, run one full install-and-call verification on a clean machine
+
 ## Tech Stack | 技术栈
 
 - Next.js 14
@@ -286,6 +293,7 @@ See:
 - confirm live AI2Work demo URL / 确认体验版地址
 - keep `.env.local` out of version control / 确保 `.env.local` 未提交
 - run `npm run lint` and `npm run build` before release
+- verify `devdetective-skill/` on a clean Python environment / 在干净 Python 环境中完整验证 Skill
 
 More deployment notes:
 

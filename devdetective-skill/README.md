@@ -41,6 +41,12 @@ cd devdetective-skill
 py -3.12 -m pip install -r requirements.txt
 ```
 
+如果本机没有 `py -3.12`，使用任意可用的 Python 3.10+ 也可以，例如：
+
+```bash
+python -m pip install -r requirements.txt
+```
+
 ## 使用前提
 
 先启动 DevDetective Web 服务：
@@ -54,6 +60,12 @@ npm run dev
 默认服务地址：
 
 - `http://localhost:4567`
+
+运行前请确认：
+
+- DevDetective Web 服务已经可访问
+- Python 环境已安装 `requests`
+- `.env.local` 中已经配置可用的 `DEEPSEEK_API_KEY` 和 `GITHUB_TOKEN`
 
 ## 使用方式
 

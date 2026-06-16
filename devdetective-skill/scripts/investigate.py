@@ -26,7 +26,7 @@ BASE_URL = os.environ.get("DEVDETECTIVE_URL", "http://localhost:4567")
 
 def investigate(idea: str, output_format: str = "markdown", output_dir: str = "reports") -> dict:
     """调用 DevDetective API 执行完整侦查流程"""
-    print(f"🔍 正在侦查: {idea[:60]}...")
+    print(f"[INFO] 正在侦查: {idea[:60]}...")
     print(f"   API: {BASE_URL}/api/investigate")
 
     payload = {
@@ -38,10 +38,10 @@ def investigate(idea: str, output_format: str = "markdown", output_dir: str = "r
     result = api_call(f"{BASE_URL}/api/investigate", payload)
 
     if "error" in result:
-        print(f"❌ 侦查失败: {result['error']}")
+        print(f"[ERROR] 侦查失败: {result['error']}")
         sys.exit(1)
 
-    print(f"✅ 侦查完成")
+    print("[OK] 侦查完成")
     print(f"   找到 {len(result.get('repos', []))} 个相似项目")
     print(f"   Top 3: {[r['repo']['full_name'] for r in result.get('topRecommendations', [])]}")
 
@@ -52,7 +52,7 @@ def investigate(idea: str, output_format: str = "markdown", output_dir: str = "r
     filename = f"devdetective-{safe_name}-{datetime.now().strftime('%Y-%m-%d')}.md"
     filepath = os.path.join(output_dir, filename)
     save_file(filepath, markdown)
-    print(f"📄 报告已保存: {filepath}")
+    print(f"[REPORT] 报告已保存: {filepath}")
 
     return result
 
@@ -85,7 +85,7 @@ def main():
         print()
         args.idea = input("请输入你的开发想法: ").strip()
         if not args.idea:
-            print("❌ 请输入有效的开发想法")
+            print("[ERROR] 请输入有效的开发想法")
             sys.exit(1)
 
     result = investigate(args.idea, args.format, args.output_dir)

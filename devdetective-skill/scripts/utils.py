@@ -21,14 +21,14 @@ def api_call(url: str, payload: dict, timeout: int = 120) -> dict:
         resp.raise_for_status()
         return resp.json()
     except requests.exceptions.ConnectionError:
-        print(f"❌ 无法连接 DevDetective 服务 ({url})")
+        print(f"[ERROR] 无法连接 DevDetective 服务 ({url})")
         print("   请确保已启动: npm run dev")
         sys.exit(1)
     except requests.exceptions.Timeout:
-        print(f"❌ API 请求超时 ({timeout}s)")
+        print(f"[ERROR] API 请求超时 ({timeout}s)")
         sys.exit(1)
     except requests.exceptions.HTTPError as e:
-        print(f"❌ API 错误: {e}")
+        print(f"[ERROR] API 错误: {e}")
         try:
             print(f"   {resp.json()}")
         except Exception:

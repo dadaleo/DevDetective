@@ -39,7 +39,7 @@ npm run build
 
 Recommended deployment targets:
 
-- `ai2work.xyz/devdetective`
+- `ai2work.xyz/DevDetective`
 - `devdetective.ai2work.xyz`
 
 ### Recommended deployment order
@@ -128,7 +128,7 @@ docker run -p 3000:3000 \
 
 If you later connect it behind the AI2Work reverse proxy, map:
 
-- `ai2work.xyz/devdetective`
+- `ai2work.xyz/DevDetective`
 - or `devdetective.ai2work.xyz`
 
 ## Before public GitHub release
@@ -143,4 +143,5 @@ If you later connect it behind the AI2Work reverse proxy, map:
 1. Validate the hosted experience locally
 2. Deploy the first online experience
 3. Confirm the real domain and health check
-4. Then update GitHub screenshots, release notes, and public repo settings in one pass
+4. Verify `devdetective-skill/` on a clean Python runtime
+5. Then update GitHub screenshots, release notes, and public repo settings in one pass

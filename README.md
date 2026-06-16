@@ -234,7 +234,7 @@ Returns built-in example cases.
 - WeChat mini app UI generator / 微信小程序 UI 模板生成器
 - GitHub tool radar / GitHub 工具雷达
 
-## Screenshots | 截图位
+## Screenshots | 截图展示
 
 Planned for public release:
 
@@ -242,11 +242,11 @@ Planned for public release:
 - recommendation result cards
 - exported Markdown report preview
 
-公开前建议补三张图：
+<img width="1379" height="858" alt="01" src="https://github.com/user-attachments/assets/4cdf58d2-7786-4240-8874-a1607fd03d79" />
+<img width="1557" height="1320" alt="02" src="https://github.com/user-attachments/assets/e699dbb8-35e5-43e1-8080-4ba63d6776ae" />
+<img width="994" height="661" alt="04" src="https://github.com/user-attachments/assets/426dd557-946d-4ef9-8673-15d6fddf12d2" />
 
-- 首页输入区
-- 推荐结果区
-- Markdown 报告示例
+
 
 ## Markdown Report Export | Markdown 报告导出
 

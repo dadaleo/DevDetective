@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "env": {
+    "HOSTED_EXPERIENCE_MODE": "true",
+    "HOSTED_DAILY_LIMIT": "3",
+    "HOSTED_MAX_RESULTS": "5"
+  }
+}

@@ -3,8 +3,54 @@
 > Search GitHub before you build from scratch.  
 > 写代码前，先查 GitHub 有没有成熟轮子。
 
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-v0.1.0-informational)](./RELEASE_NOTES_v0.1.0.md)
+
 DevDetective is an open-source pre-build investigation tool for the AI coding era.  
 开发者在正式开工前，先输入产品想法，DevDetective 会搜索 GitHub 上的相似开源项目，比较维护状态、License、活跃度和可复用性，再生成可直接交给 Codex、Cursor、Claude Code 等工具的二次开发提示词。
+
+## At a Glance | 一眼看懂
+
+| English | 中文 |
+| --- | --- |
+| Input an app idea | 输入一个应用想法 |
+| Search similar GitHub repos | 搜索相似 GitHub 项目 |
+| Evaluate maintenance, license, and reuse value | 评估维护状态、License 和复用价值 |
+| Generate a follow-up prompt for AI coding tools | 生成可交给 AI 编程工具的后续提示词 |
+
+## Workflow | 工作流
+
+```mermaid
+flowchart LR
+    A["Idea Input"] --> B["AI Requirement Analysis"]
+    B --> C["GitHub Search Queries"]
+    C --> D["Repository Search"]
+    D --> E["Scoring and Filtering"]
+    E --> F["Top Recommendations"]
+    F --> G["AI Dev Prompt"]
+    G --> H["Markdown Report"]
+```
+
+中文理解：
+
+1. 用户先描述要做什么。
+2. 系统先拆解需求，再生成 GitHub 搜索词。
+3. 搜索候选仓库并评估维护状态、License 和复用价值。
+4. 输出 Top 推荐、AI 结论和一份可复制的开发提示词。
+
+## Why It Feels Different | 它和普通搜索工具的区别
+
+- It is not just a GitHub search box. It is a pre-build investigation workflow.
+- It does not only rank by stars. It also checks push activity, maintenance freshness, and reuse fit.
+- It is designed to work with AI coding assistants, not compete with them.
+
+中文补充：
+
+- 它不是普通的 GitHub 搜索框，而是一整套“开工前侦查流程”。
+- 它不只看 Star，还看最近提交、维护状态和复用适配度。
+- 它不是替代 AI 编程，而是给 AI 编程先做情报准备。
 
 ## What It Does | 它解决什么问题
 
@@ -188,6 +234,20 @@ Returns built-in example cases.
 - WeChat mini app UI generator / 微信小程序 UI 模板生成器
 - GitHub tool radar / GitHub 工具雷达
 
+## Screenshots | 截图位
+
+Planned for public release:
+
+- homepage hero and input area
+- recommendation result cards
+- exported Markdown report preview
+
+公开前建议补三张图：
+
+- 首页输入区
+- 推荐结果区
+- Markdown 报告示例
+
 ## Markdown Report Export | Markdown 报告导出
 
 Each report can include:
@@ -230,6 +290,7 @@ See:
 More deployment notes:
 
 - [DEPLOYMENT.md](DEPLOYMENT.md)
+- [RELEASE_NOTES_v0.1.0.md](RELEASE_NOTES_v0.1.0.md)
 
 ## License
 

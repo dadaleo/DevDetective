@@ -1,0 +1,1517 @@
+《开发者侦探 DevDetective》工程说明书
+
+1. 项目名称
+
+中文名：开发者侦探
+英文名：DevDetective
+备用名：开发伴侣 / BuildMate / GitHub 轮子侦探
+
+推荐正式命名：
+
+开发者侦探 DevDetective
+
+推荐副标题：
+
+写代码前，先查 GitHub 有没有成熟轮子。
+
+
+
+2. 项目背景
+
+当前越来越多开发者使用 Codex、Cursor、Claude Code 等 AI 编程工具快速开发小工具。但实际开发中存在一个明显问题：
+
+很多需求在 GitHub 上已经有成熟开源项目，甚至维护多年，但用户往往没有先搜索和比较，而是直接让 AI 从零开发，导致消耗大量 token，最后得到一个半成品。
+
+本项目希望解决这个问题：
+
+在正式开发前，先根据用户的应用描述，自动搜索 GitHub 上最相近的开源项目，并判断哪些可以直接 fork，哪些适合参考，哪些不建议使用，最后生成可交给 Codex/Cursor 的二次开发提示词。
+
+
+
+3. 产品定位
+
+开发者侦探不是普通 GitHub 搜索工具，也不是代码生成工具。
+
+它是一个：
+
+AI 编程前置侦查工具
+
+核心定位：
+
+用户输入想做的工具，系统先帮他侦查 GitHub 上已有的相似开源项目，再给出复用建议和开发方案。
+
+用户价值：
+
+避免重复造轮子；
+节省 AI 编程 token；
+快速找到成熟项目；
+判断项目是否仍在维护；
+辅助生成 Codex 二次开发提示词；
+帮助非资深开发者理解哪些开源项目值得参考。
+
+
+4. 目标用户
+
+4.1 核心用户
+
+独立开发者；
+使用 Codex / Cursor / Claude Code 的 AI 编程用户；
+需要快速做 MVP 的创业者；
+小团队产品经理；
+技术能力中等但不熟悉 GitHub 高级搜索的人；
+想找开源替代方案的开发者。
+4.2 典型场景
+
+用户输入：
+
+我想做一个本地运行的视频号转文字归档工具，可以每天把视频内容转成文字，按主题分类保存。
+
+系统输出：
+
+需求理解；
+推荐搜索关键词；
+相似 GitHub 项目 Top 10；
+每个项目的 star、fork、license、最近更新日期、最近提交日期；
+可复用评分；
+是否建议 fork；
+适合参考的模块；
+给 Codex 的二次开发提示词。
+
+
+5. MVP 目标
+
+第一版只做一个核心闭环：
+
+输入需求 → 搜索 GitHub → 项目评分 → 对比总结 → 输出 Codex 开发提示词
+
+不做复杂社区、登录系统、多人协作、自动 fork、自动部署。
+
+
+
+6. 第一版核心功能
+
+6.1 自然语言需求输入
+
+首页提供一个大输入框。
+
+占位文案：
+
+描述你想开发的小工具，例如：我想做一个局域网文件快传网页，支持同 WiFi 下不同设备快速分享文件。
+
+用户可以输入中文或英文。
+
+输入内容示例：
+
+我想做一个本地运行的小工具，可以把多个 md/txt/json 文件导入，用于管理角色设定、提示词和项目素材。
+
+
+
+6.2 可选筛选项
+
+输入框下方提供可选配置，不强制用户填写。
+
+筛选项：
+
+技术栈：
+
+不限
+React
+Next.js
+Vue
+Python
+FastAPI
+Electron
+Tauri
+Node.js
+微信小程序
+CLI
+项目类型：
+
+Web 应用
+桌面应用
+浏览器插件
+自动化脚本
+命令行工具
+小程序
+API 服务
+偏好：
+
+最近仍在维护
+Star 较高
+License 友好
+文档完整
+轻量易改
+适合二次开发
+有 Demo
+更新时间：
+
+不限制
+最近 3 个月有更新
+最近 6 个月有更新
+最近 1 年有更新
+最近 2 年有更新
+
+
+6.3 AI 需求拆解
+
+系统收到用户输入后，先调用 AI 对需求进行拆解。
+
+输出结构：
+
+{
+
+  "intent_summary": "用户想开发一个本地运行的提示词和素材管理工具",
+
+  "core_features": [
+
+    "本地运行",
+
+    "导入 md/txt/json 文件",
+
+    "管理角色设定",
+
+    "管理提示词",
+
+    "项目素材归档"
+
+  ],
+
+  "possible_keywords_cn": [
+
+    "提示词管理",
+
+    "本地知识库",
+
+    "角色设定管理",
+
+    "素材管理工具"
+
+  ],
+
+  "possible_keywords_en": [
+
+    "prompt manager",
+
+    "local knowledge base",
+
+    "character bible manager",
+
+    "markdown note manager",
+
+    "json txt md importer"
+
+  ],
+
+  "recommended_tech_keywords": [
+
+    "react",
+
+    "nextjs",
+
+    "electron",
+
+    "tauri",
+
+    "sqlite"
+
+  ]
+
+}
+
+
+
+6.4 GitHub 搜索策略生成
+
+系统根据需求生成多组 GitHub 搜索关键词。
+
+示例：
+
+prompt manager local app
+
+local knowledge base markdown json import
+
+character bible manager
+
+prompt library manager
+
+markdown txt json import tool
+
+如果用户选择技术栈，则拼接 GitHub 搜索条件：
+
+prompt manager local app language:TypeScript
+
+markdown json import tool language:Python
+
+local knowledge base electron
+
+prompt manager stars:>50 pushed:>2024-01-01
+
+搜索策略要求：
+
+同时生成中文和英文关键词；
+英文关键词优先，因为 GitHub 项目主要以英文命名；
+至少生成 5 组搜索词；
+每组搜索词尽量聚焦一个功能方向；
+不要只搜索宽泛词，例如 “tool”“app”；
+对最近更新项目增加 pushed 条件；
+对高质量项目增加 stars 条件；
+对轻量项目可以降低 star 门槛，避免漏掉小而精准的项目。
+
+
+6.5 GitHub 项目抓取
+
+第一版优先使用 GitHub REST API。
+
+需要抓取字段：
+
+{
+
+  "name": "项目名",
+
+  "full_name": "owner/repo",
+
+  "html_url": "GitHub 地址",
+
+  "description": "项目描述",
+
+  "language": "主语言",
+
+  "stargazers_count": "Star 数",
+
+  "forks_count": "Fork 数",
+
+  "open_issues_count": "Issue 数",
+
+  "license": "License",
+
+  "created_at": "创建日期",
+
+  "updated_at": "最近更新日期",
+
+  "pushed_at": "最近提交日期",
+
+  "archived": "是否归档",
+
+  "disabled": "是否禁用",
+
+  "topics": "项目标签",
+
+  "homepage": "项目主页"
+
+}
+
+重点新增字段：
+
+updated_at：最近更新日期；
+pushed_at：最近代码提交日期；
+created_at：项目创建日期；
+archived：是否已归档；
+license：是否允许二次开发；
+homepage：是否有 Demo 或产品页。
+
+
+7. 最近更新日期规则
+
+最近更新日期是本项目的关键判断依据之一。
+
+需要同时展示：
+
+项目创建日期；
+最近更新日期；
+最近提交日期；
+距今多久未更新；
+活跃状态标签。
+7.1 活跃状态标签
+
+根据 pushed_at 或 updated_at 判断：
+
+30 天内有更新：非常活跃
+
+90 天内有更新：活跃
+
+180 天内有更新：正常维护
+
+365 天内有更新：低频维护
+
+1–2 年未更新：维护风险
+
+2 年以上未更新：疑似停更
+
+已 archived：已归档，不建议直接使用
+
+7.2 展示示例
+
+最近提交：2026-05-18
+
+最近更新：2026-06-02
+
+维护状态：活跃
+
+创建时间：2021-03-12
+
+维护年限：5 年
+
+7.3 评分影响
+
+最近更新日期进入综合评分。
+
+建议规则：
+
+30 天内更新：+20 分
+
+90 天内更新：+16 分
+
+180 天内更新：+12 分
+
+365 天内更新：+8 分
+
+1–2 年未更新：+3 分
+
+2 年以上未更新：-10 分
+
+archived：-30 分
+
+注意：
+
+updated_at 可能包括 issue、元数据等变化，pushed_at 更能代表代码层面是否仍在维护。因此展示时两个字段都保留，但评分时优先使用 pushed_at。
+
+
+
+8. 项目评分体系
+
+每个搜索结果生成一个“可复用评分”。
+
+总分 100 分。
+
+建议权重：
+
+需求相似度：35 分
+
+维护活跃度：20 分
+
+项目成熟度：15 分
+
+License 友好度：10 分
+
+文档完整度：10 分
+
+代码可改造性：10 分
+
+8.1 需求相似度
+
+AI 根据 README、项目描述、topics、项目名判断。
+
+评分维度：
+
+是否解决同类问题；
+是否包含用户需求中的核心功能；
+技术形态是否匹配；
+是否适合作为底座；
+是否只是部分相关。
+输出标签：
+
+高度相似
+
+中度相似
+
+部分可参考
+
+仅概念相关
+
+不相关
+
+8.2 维护活跃度
+
+根据：
+
+最近提交日期；
+最近更新日期；
+是否 archived；
+release 是否近期更新；
+issue 是否长期无人处理。
+第一版只做基础字段：
+
+pushed_at
+
+updated_at
+
+archived
+
+open_issues_count
+
+第二版再加入 release、PR、commit history。
+
+8.3 项目成熟度
+
+参考：
+
+star 数；
+fork 数；
+创建时间；
+是否维护多年；
+是否有较完整 README；
+是否有 demo；
+是否有 release。
+注意：star 不是唯一指标。小项目 star 不高，但如果功能高度匹配，也应进入推荐列表。
+
+8.4 License 友好度
+
+展示 license。
+
+优先级：
+
+MIT / Apache-2.0 / BSD：友好
+
+GPL / AGPL：需谨慎
+
+未声明 license：高风险
+
+系统不能给法律结论，只能提示：
+
+该项目未声明 license，商业化或二次分发前需自行确认授权风险。
+
+8.5 文档完整度
+
+根据 README 判断：
+
+是否有安装说明；
+是否有截图；
+是否有 usage；
+是否有配置说明；
+是否有贡献说明；
+是否有 Demo 链接。
+8.6 代码可改造性
+
+第一版可以由 AI 根据 README 和项目结构粗略判断。
+
+判断项：
+
+技术栈是否常见；
+是否过度复杂；
+是否前后端耦合严重；
+是否适合本地部署；
+是否依赖大量第三方服务；
+是否适合交给 Codex 二次开发。
+
+
+9. 输出结果结构
+
+用户点击“开始侦查”后，页面输出以下内容。
+
+9.1 需求理解卡片
+
+示例：
+
+我理解你想开发的是：
+
+
+
+一个本地运行的提示词与素材管理工具，支持导入 md/txt/json 文件，用于管理角色设定、提示词、项目资料，并方便后续在 AI 创作或开发中复用。
+
+9.2 搜索关键词卡片
+
+展示系统实际使用的关键词：
+
+prompt manager local app
+
+local knowledge base markdown import
+
+character bible manager
+
+markdown txt json import tool
+
+prompt library manager electron
+
+提供按钮：
+
+复制搜索词
+
+重新生成搜索词
+
+9.3 相似项目列表
+
+每个项目一张卡片。
+
+卡片字段：
+
+项目名：owner/repo
+
+简介：xxx
+
+GitHub：链接
+
+主语言：TypeScript
+
+Star：3.2k
+
+Fork：420
+
+License：MIT
+
+创建日期：2021-03-12
+
+最近更新：2026-06-02
+
+最近提交：2026-05-18
+
+维护状态：活跃
+
+可复用评分：86/100
+
+推荐动作：建议 fork 改造
+
+推荐动作分为：
+
+建议 fork 改造
+
+适合参考架构
+
+适合参考 UI
+
+适合借鉴局部功能
+
+仅供调研
+
+不建议使用
+
+9.4 Top 3 对比总结
+
+用表格展示：
+
+| 排名 | 项目 | 相似度 | 最近提交 | 维护状态 | 建议 |
+
+|---|---|---|---|---|---|
+
+| 1 | A项目 | 92% | 2026-05-18 | 活跃 | 建议 fork |
+
+| 2 | B项目 | 81% | 2025-12-03 | 正常维护 | 参考 UI |
+
+| 3 | C项目 | 74% | 2024-09-20 | 低频维护 | 借鉴功能 |
+
+9.5 AI 判断结论
+
+示例：
+
+本需求不建议从零开发。
+
+
+
+建议以 A 项目作为基础，因为它已经包含本地文件管理、Markdown 解析和 SQLite 存储能力，最近 3 个月仍有提交，license 也较友好。
+
+
+
+B 项目的 UI 更适合参考，但底层功能不完整。
+
+
+
+C 项目虽然 star 较高，但已经超过 2 年没有代码提交，不建议直接 fork。
+
+9.6 Codex 开发提示词
+
+生成可复制 prompt：
+
+请基于以下开源项目进行二次开发：
+
+
+
+基础项目：
+
+https://github.com/owner/repo
+
+
+
+开发目标：
+
+将其改造为一个本地运行的提示词与项目素材管理工具。
+
+
+
+需要保留：
+
+1. 本地文件读取逻辑；
+
+2. Markdown 渲染能力；
+
+3. SQLite 本地存储；
+
+4. 基础项目结构。
+
+
+
+需要新增：
+
+1. 支持批量导入 md/txt/json 文件；
+
+2. 增加角色设定分类；
+
+3. 增加提示词模板分类；
+
+4. 增加项目素材标签；
+
+5. 增加全文搜索；
+
+6. 增加中文界面。
+
+
+
+需要避免：
+
+1. 不要重写已有文件导入逻辑；
+
+2. 不要引入复杂后端；
+
+3. 不要强制用户登录；
+
+4. 不要破坏原项目 license 声明。
+
+
+
+输出要求：
+
+1. 先阅读原项目 README；
+
+2. 总结原项目结构；
+
+3. 提出改造计划；
+
+4. 分步骤修改；
+
+5. 每一步完成后说明变更文件。
+
+
+
+10. 页面结构设计
+
+第一版只需要一个主页面。
+
+10.1 页面布局
+
+顶部导航：
+
+Logo：开发者侦探
+
+菜单：首页 / 示例 / 使用说明 / GitHub
+
+
+
+Hero 区：
+
+标题：写代码前，先查 GitHub 有没有成熟轮子
+
+副标题：输入你的应用想法，自动寻找相似开源项目，判断是否值得 fork，并生成 Codex 开发提示词。
+
+
+
+主输入区：
+
+大文本输入框
+
+筛选项
+
+开始侦查按钮
+
+
+
+结果区：
+
+需求理解
+
+搜索关键词
+
+项目列表
+
+Top 3 推荐
+
+开发建议
+
+Codex Prompt
+
+10.2 视觉风格
+
+建议风格：
+
+科技感；
+简洁；
+类似开发工具；
+可使用侦探元素：放大镜、线索卡片、代码仓库卡；
+不要太花哨；
+信息密度适中。
+推荐颜色：
+
+主色：深蓝 / 紫蓝 / 黑灰
+
+强调色：绿色或青色
+
+背景：浅灰白或深色开发者风格
+
+卡片：圆角、轻阴影
+
+
+
+11. 技术架构
+
+11.1 推荐技术栈
+
+第一版推荐：
+
+前端：Next.js + React + TailwindCSS
+
+后端：Next.js API Routes
+
+数据库：SQLite
+
+AI 接口：OpenAI API 或兼容 API
+
+GitHub 数据：GitHub REST API
+
+部署：Vercel / 轻量服务器
+
+如果部署在轻量服务器，也可以使用：
+
+前端：Next.js
+
+后端：FastAPI
+
+数据库：SQLite
+
+反向代理：Nginx
+
+进程管理：PM2 / systemd
+
+11.2 目录结构建议
+
+dev-detective/
+
+├── app/
+
+│   ├── page.tsx
+
+│   ├── layout.tsx
+
+│   ├── api/
+
+│   │   ├── analyze-requirement/
+
+│   │   │   └── route.ts
+
+│   │   ├── github-search/
+
+│   │   │   └── route.ts
+
+│   │   ├── score-repos/
+
+│   │   │   └── route.ts
+
+│   │   └── generate-codex-prompt/
+
+│   │       └── route.ts
+
+├── components/
+
+│   ├── RequirementInput.tsx
+
+│   ├── FilterPanel.tsx
+
+│   ├── SearchKeywords.tsx
+
+│   ├── RepoCard.tsx
+
+│   ├── RepoCompareTable.tsx
+
+│   ├── ScoreBadge.tsx
+
+│   ├── MaintenanceBadge.tsx
+
+│   └── CodexPromptBox.tsx
+
+├── lib/
+
+│   ├── github.ts
+
+│   ├── ai.ts
+
+│   ├── scoring.ts
+
+│   ├── date-utils.ts
+
+│   ├── cache.ts
+
+│   └── license-utils.ts
+
+├── data/
+
+│   └── devdetective.sqlite
+
+├── types/
+
+│   └── repo.ts
+
+├── .env.example
+
+├── README.md
+
+└── package.json
+
+
+
+12. 环境变量
+
+OPENAI_API_KEY=
+
+GITHUB_TOKEN=
+
+DATABASE_URL=
+
+NEXT_PUBLIC_APP_NAME=DevDetective
+
+说明：
+
+GitHub Token 建议必填，否则容易触发接口限制；
+OpenAI API Key 用于需求拆解、README 总结、项目评分和 Codex Prompt 生成；
+第一版可以不做用户登录。
+
+
+13. 数据库设计
+
+第一版使用 SQLite。
+
+13.1 search_sessions 表
+
+CREATE TABLE search_sessions (
+
+  id TEXT PRIMARY KEY,
+
+  user_input TEXT NOT NULL,
+
+  filters_json TEXT,
+
+  generated_keywords_json TEXT,
+
+  created_at TEXT NOT NULL
+
+);
+
+13.2 repo_results 表
+
+CREATE TABLE repo_results (
+
+  id TEXT PRIMARY KEY,
+
+  session_id TEXT NOT NULL,
+
+  full_name TEXT NOT NULL,
+
+  html_url TEXT NOT NULL,
+
+  description TEXT,
+
+  language TEXT,
+
+  stars INTEGER,
+
+  forks INTEGER,
+
+  open_issues INTEGER,
+
+  license TEXT,
+
+  created_at TEXT,
+
+  updated_at TEXT,
+
+  pushed_at TEXT,
+
+  archived INTEGER,
+
+  homepage TEXT,
+
+  topics_json TEXT,
+
+  readme_summary TEXT,
+
+  similarity_score INTEGER,
+
+  activity_score INTEGER,
+
+  total_score INTEGER,
+
+  recommendation TEXT,
+
+  created_record_at TEXT NOT NULL
+
+);
+
+13.3 cache_github_repos 表
+
+CREATE TABLE cache_github_repos (
+
+  full_name TEXT PRIMARY KEY,
+
+  raw_json TEXT NOT NULL,
+
+  readme_text TEXT,
+
+  readme_summary TEXT,
+
+  fetched_at TEXT NOT NULL
+
+);
+
+缓存策略：
+
+同一个 repo 24 小时内不重复抓取详情；
+同一组关键词 6 小时内优先读取缓存；
+避免浪费 GitHub API 请求额度。
+
+
+14. 后端接口设计
+
+14.1 POST /api/analyze-requirement
+
+输入：
+
+{
+
+  "userInput": "我想做一个局域网文件快传工具",
+
+  "filters": {
+
+    "techStack": "Next.js",
+
+    "projectType": "Web",
+
+    "updatePreference": "最近一年"
+
+  }
+
+}
+
+输出：
+
+{
+
+  "intentSummary": "...",
+
+  "coreFeatures": [],
+
+  "keywords": [],
+
+  "searchQueries": []
+
+}
+
+14.2 POST /api/github-search
+
+输入：
+
+{
+
+  "searchQueries": [
+
+    "local file sharing web app language:TypeScript",
+
+    "wifi file transfer web app"
+
+  ],
+
+  "limit": 20
+
+}
+
+输出：
+
+{
+
+  "repos": []
+
+}
+
+14.3 POST /api/score-repos
+
+输入：
+
+{
+
+  "userInput": "...",
+
+  "repos": []
+
+}
+
+输出：
+
+{
+
+  "scoredRepos": []
+
+}
+
+14.4 POST /api/generate-codex-prompt
+
+输入：
+
+{
+
+  "userInput": "...",
+
+  "selectedRepos": []
+
+}
+
+输出：
+
+{
+
+  "summary": "...",
+
+  "codexPrompt": "..."
+
+}
+
+
+
+15. 评分逻辑伪代码
+
+function calculateRepoScore(repo, aiSimilarityScore) {
+
+  const similarity = aiSimilarityScore * 0.35;
+
+  const activity = calculateActivityScore(repo.pushed_at, repo.updated_at, repo.archived) * 0.20;
+
+  const maturity = calculateMaturityScore(repo.stars, repo.forks, repo.created_at) * 0.15;
+
+  const license = calculateLicenseScore(repo.license) * 0.10;
+
+  const docs = calculateDocsScore(repo.readme_text) * 0.10;
+
+  const modifiability = calculateModifiabilityScore(repo) * 0.10;
+
+
+
+  return Math.round(similarity + activity + maturity + license + docs + modifiability);
+
+}
+
+15.1 活跃度评分
+
+function calculateActivityScore(pushedAt, updatedAt, archived) {
+
+  if (archived) return 0;
+
+
+
+  const date = pushedAt || updatedAt;
+
+  const days = daysSince(date);
+
+
+
+  if (days <= 30) return 100;
+
+  if (days <= 90) return 80;
+
+  if (days <= 180) return 65;
+
+  if (days <= 365) return 45;
+
+  if (days <= 730) return 20;
+
+
+
+  return 5;
+
+}
+
+15.2 维护状态标签
+
+function getMaintenanceLabel(pushedAt, updatedAt, archived) {
+
+  if (archived) return "已归档";
+
+
+
+  const date = pushedAt || updatedAt;
+
+  const days = daysSince(date);
+
+
+
+  if (days <= 30) return "非常活跃";
+
+  if (days <= 90) return "活跃";
+
+  if (days <= 180) return "正常维护";
+
+  if (days <= 365) return "低频维护";
+
+  if (days <= 730) return "维护风险";
+
+
+
+  return "疑似停更";
+
+}
+
+
+
+16. README 处理
+
+第一版需要抓取 README。
+
+用途：
+
+判断项目功能；
+判断文档完整度；
+判断安装方式；
+判断是否有 Demo；
+交给 AI 总结项目是否适合复用。
+README 处理要求：
+
+最大读取 20,000 字符；
+太长则截断；
+缓存 README；
+只对 Top 20 项目读取 README；
+避免对所有搜索结果暴力读取，防止超限。
+
+
+17. AI 提示词设计
+
+17.1 需求拆解 Prompt
+
+你是一个开发需求分析助手。
+
+请根据用户输入，提取这个应用想法的核心功能、可能技术栈、GitHub 搜索关键词。
+
+
+
+要求：
+
+1. 同时输出中文关键词和英文关键词；
+
+2. 英文关键词要适合 GitHub 搜索；
+
+3. 不要生成太宽泛的词；
+
+4. 至少生成 5 组搜索 query；
+
+5. 输出 JSON。
+
+17.2 项目相似度判断 Prompt
+
+你是一个开源项目分析助手。
+
+请根据用户需求和 GitHub 项目信息，判断该项目是否适合作为开发参考。
+
+
+
+你需要判断：
+
+1. 功能是否相似；
+
+2. 技术栈是否合适；
+
+3. 是否可以直接 fork；
+
+4. 是否只适合参考局部功能；
+
+5. 是否不建议使用；
+
+6. 简要说明原因。
+
+
+
+请输出：
+
+- similarity_score: 0-100
+
+- reuse_level: 建议 fork / 参考架构 / 参考 UI / 借鉴局部功能 / 仅供调研 / 不建议使用
+
+- reason: 简短原因
+
+17.3 Codex Prompt 生成 Prompt
+
+你是一个 AI 编程任务规划助手。
+
+用户已经找到若干相似 GitHub 项目，请你根据用户需求和这些项目，生成一段可以交给 Codex/Cursor 的二次开发提示词。
+
+
+
+要求：
+
+1. 明确推荐基础项目；
+
+2. 说明保留什么；
+
+3. 说明新增什么；
+
+4. 说明避免什么；
+
+5. 分阶段给出开发步骤；
+
+6. 强调先阅读 README 和项目结构；
+
+7. 输出中文。
+
+
+
+18. 前端组件要求
+
+18.1 RequirementInput
+
+功能：
+
+大文本输入；
+支持示例一键填充；
+字数建议 20–1000 字；
+空内容不能提交。
+18.2 FilterPanel
+
+功能：
+
+技术栈选择；
+项目类型选择；
+更新时间偏好；
+License 偏好；
+是否优先轻量项目。
+18.3 RepoCard
+
+展示字段：
+
+项目名；
+简介；
+star；
+fork；
+language；
+license；
+最近提交；
+最近更新；
+维护状态；
+可复用评分；
+推荐动作；
+GitHub 链接；
+复制项目链接按钮。
+18.4 MaintenanceBadge
+
+根据维护状态展示不同标签：
+
+非常活跃
+
+活跃
+
+正常维护
+
+低频维护
+
+维护风险
+
+疑似停更
+
+已归档
+
+18.5 CodexPromptBox
+
+功能：
+
+展示生成的 prompt；
+一键复制；
+支持重新生成；
+支持选择某个项目作为基础项目后重新生成。
+
+
+19. 示例数据
+
+首页可放 3 个示例按钮。
+
+示例 1：局域网文件快传
+
+我想做一个网页工具，在同一个 WiFi 下，不同设备可以快速互传文件，不需要登录，打开网页就能上传和下载。
+
+示例 2：视频号转文字归档
+
+我想做一个本地工具，用来把微信视频号内容转成文字，按日期和主题归档，方便学习太空知识。
+
+示例 3：提示词素材管理器
+
+我想做一个本地运行的工具，可以导入 md/txt/json 文件，用于管理角色设定、提示词、项目素材，并能全文搜索。
+
+
+
+20. 第一版开发步骤
+
+阶段 1：基础页面
+
+创建 Next.js 项目；
+完成首页布局；
+完成输入框和筛选项；
+完成静态结果卡片；
+完成响应式布局。
+阶段 2：GitHub 搜索
+
+配置 GitHub Token；
+实现 GitHub 搜索接口；
+支持多关键词搜索；
+合并重复 repo；
+获取基础字段；
+展示项目列表。
+阶段 3：最近更新与维护状态
+
+解析 created_at；
+解析 updated_at；
+解析 pushed_at；
+计算距今天数；
+生成维护状态标签；
+将维护状态加入评分。
+阶段 4：AI 分析
+
+接入 AI API；
+实现需求拆解；
+实现搜索关键词生成；
+实现 README 总结；
+实现相似度评分；
+实现项目推荐原因。
+阶段 5：Codex Prompt 生成
+
+基于 Top 3 项目生成开发建议；
+生成可复制的 Codex 提示词；
+支持用户手动选择基础项目；
+支持重新生成 prompt。
+阶段 6：缓存与优化
+
+接入 SQLite；
+缓存搜索 session；
+缓存 repo 详情；
+缓存 README；
+防止 GitHub API 超限；
+添加错误提示和重试。
+
+
+21. 第一版不做的功能
+
+为控制开发量，第一版暂不做：
+
+用户登录；
+收藏项目；
+自动 fork；
+自动部署；
+自动创建 GitHub issue；
+Chrome 插件；
+多人协作；
+付费系统；
+项目社区评论；
+完整代码质量扫描。
+这些可以放到第二版。
+
+
+
+22. 第二版可扩展功能
+
+项目收藏；
+用户历史记录；
+GitHub OAuth 登录；
+一键生成 fork 改造计划；
+项目依赖分析；
+安全风险扫描；
+License 风险提示；
+Release 更新分析；
+issue/PR 活跃度分析；
+支持 GitLab、Gitee；
+支持 awesome-list 数据源；
+支持 Product Hunt / Hacker News / Reddit 信号；
+支持 MCP Server，给 AI Agent 调用；
+支持浏览器插件，在 GitHub 页面上直接分析项目。
+
+
+23. 风险与注意事项
+
+23.1 GitHub API 限制
+
+必须做：
+
+GitHub Token 配置；
+请求缓存；
+搜索去重；
+README 限量抓取；
+错误提示；
+请求失败 fallback。
+23.2 AI 判断不稳定
+
+解决方式：
+
+评分规则中保留硬指标；
+不完全依赖 AI；
+star、fork、pushed_at、license 等字段先做基础评分；
+AI 只负责语义相似度和总结；
+输出中标注“建议仅供参考”。
+23.3 License 风险
+
+系统只做提示，不做法律判断。
+
+提示文案：
+
+该项目 license 可能影响二次分发或商业使用，请在正式使用前自行确认授权条款。
+
+23.4 搜索结果不准确
+
+解决方式：
+
+展示搜索关键词；
+支持重新生成关键词；
+支持用户手动修改关键词；
+支持排除不相关项目；
+支持选择更准确的技术栈。
+
+
+24. 成功标准
+
+MVP 完成后，应达到：
+
+用户输入一个开发想法；
+系统能生成合理 GitHub 搜索关键词；
+系统能返回 10 个左右相关项目；
+每个项目展示 star、fork、license、最近更新、最近提交；
+系统能判断维护状态；
+系统能给出 Top 3 推荐；
+系统能说明是否建议从零开发；
+系统能生成 Codex 二次开发提示词；
+整体流程在 30 秒内完成；
+页面适配桌面和移动端。
+
+
+25. 首页文案建议
+
+主标题
+
+写代码前，先查 GitHub 有没有成熟轮子
+
+副标题
+
+输入你的应用想法，开发者侦探会自动搜索相似开源项目，比较维护状态、相似度和 license，并生成 Codex 二次开发提示词。
+
+按钮
+
+开始侦查
+
+示例入口
+
+试试：局域网文件快传工具
+
+试试：视频号转文字归档工具
+
+试试：提示词素材管理器
+
+
+
+26. 项目核心卖点
+
+不是从零写，而是先找成熟开源项目；
+不只是搜索，而是判断能不能复用；
+不只看 star，还看最近更新日期；
+输出结果直接服务 Codex/Cursor 二次开发；
+帮用户节省 token、时间和试错成本；
+适合 AI 编程时代的新开发流程。
+
+
+27. 最终一句话定位
+
+开发者侦探 DevDetective：输入应用想法，先帮你侦查 GitHub 上的成熟实现，再告诉你该 fork、参考，还是从零开发。
+

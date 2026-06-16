@@ -1,12 +1,5 @@
-/**
- * POST /api/investigate
- *
- * 二期统一侦查入口：
- * 需求分析 -> GitHub 搜索 -> 评分 -> Prompt 生成 -> Markdown 报告 -> 日志落库
- */
-
-import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { NextRequest, NextResponse } from "next/server";
 import { deepseekChatJSON, isDeepSeekConfigured } from "@/lib/ai/deepseek";
 import {
   ANALYZE_REQUIREMENT_SYSTEM,
@@ -15,10 +8,10 @@ import {
   buildGenerateDevPrompt,
 } from "@/lib/ai/prompts";
 import { batchFetchReadmes, isGitHubConfigured, multiSearchRepos } from "@/lib/github";
+import { countUsageSince, logUsage, saveRepoResults, saveReport, saveSearchSession } from "@/lib/cache";
 import { generateMarkdownReport } from "@/lib/report";
 import { filterSafeRepos } from "@/lib/safety";
 import { scoreRepos } from "@/lib/scoring";
-import { countUsageSince, logUsage, saveRepoResults, saveReport, saveSearchSession } from "@/lib/cache";
 import type { GitHubRepo, InvestigateInput } from "@/lib/types";
 
 type InvestigateAnalysis = {
@@ -31,7 +24,8 @@ type InvestigateAnalysis = {
 
 function applyFilters(repos: GitHubRepo[], input: InvestigateInput): GitHubRepo[] {
   return repos.filter((repo) => {
-    const text = `${repo.name} ${repo.full_name} ${repo.description || ""} ${(repo.topics || []).join(" ")}`.toLowerCase();
+    const text = `${repo.name} ${repo.full_name} ${repo.description || ""} ${(repo.topics || []).join(" ")}`
+      .toLowerCase();
     const language = repo.language?.toLowerCase() || "";
     const techFilter = input.techStack?.[0]?.toLowerCase();
     const licenseFilter = input.licensePreference || "";
@@ -56,21 +50,23 @@ function applyFilters(repos: GitHubRepo[], input: InvestigateInput): GitHubRepo[
 
 function getHostedExperienceConfig() {
   const hostedMode = process.env.HOSTED_EXPERIENCE_MODE === "true";
-  const dailyLimit = Number(process.env.HOSTED_DAILY_LIMIT || 3);
+  const windowHours = Number(process.env.HOSTED_LIMIT_WINDOW_HOURS || 6);
+  const windowLimit = Number(process.env.HOSTED_MAX_QUERIES_PER_WINDOW || 2);
   const maxResults = Number(process.env.HOSTED_MAX_RESULTS || 5);
-  return { hostedMode, dailyLimit, maxResults };
+  return { hostedMode, windowHours, windowLimit, maxResults };
 }
 
 function getRequestIdentity(request: NextRequest): string | null {
   const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) return forwardedFor.split(",")[0].trim();
-  return request.headers.get("x-real-ip");
+  const realIp = request.headers.get("x-real-ip");
+  const userAgent = request.headers.get("user-agent") || "unknown-user-agent";
+  const rawIdentity = forwardedFor?.split(",")[0].trim() || realIp || userAgent;
+  return crypto.createHash("sha256").update(rawIdentity).digest("hex");
 }
 
-function startOfTodayIso(): string {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return start.toISOString();
+function startOfWindowIso(windowHours: number): string {
+  const now = Date.now();
+  return new Date(now - windowHours * 60 * 60 * 1000).toISOString();
 }
 
 export async function POST(request: NextRequest) {
@@ -90,34 +86,35 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!idea || idea.trim().length < 10) {
-      return NextResponse.json({ error: "请输入至少 10 个字的需求描述" }, { status: 400 });
+      return NextResponse.json({ error: "请输入至少 10 个字的需求描述。" }, { status: 400 });
     }
 
     if (!isGitHubConfigured()) {
-      return NextResponse.json({ error: "GitHub Token 未配置，请设置 GITHUB_TOKEN" }, { status: 500 });
+      return NextResponse.json({ error: "GitHub Token 未配置，请先设置 GITHUB_TOKEN。" }, { status: 500 });
     }
 
     if (!isDeepSeekConfigured()) {
-      return NextResponse.json({ error: "AI API 未配置，请设置 DEEPSEEK_API_KEY" }, { status: 500 });
+      return NextResponse.json({ error: "AI API 未配置，请先设置 DEEPSEEK_API_KEY。" }, { status: 500 });
     }
 
-    const { hostedMode, dailyLimit, maxResults: hostedMaxResults } = getHostedExperienceConfig();
+    const { hostedMode, windowHours, windowLimit, maxResults: hostedMaxResults } = getHostedExperienceConfig();
+    const windowStartIso = startOfWindowIso(windowHours);
+    const usedInWindow =
+      hostedMode && requestIdentity
+        ? await countUsageSince({
+            requestType: "investigate",
+            userId: requestIdentity,
+            sinceIso: windowStartIso,
+          })
+        : 0;
 
-    if (hostedMode && requestIdentity) {
-      const usedToday = await countUsageSince({
-        requestType: "investigate",
-        userId: requestIdentity,
-        sinceIso: startOfTodayIso(),
-      });
-
-      if (usedToday >= dailyLimit) {
-        return NextResponse.json(
-          {
-            error: `在线体验版今日次数已用完，当前限制为每天 ${dailyLimit} 次。请明天再试，或使用本地开源版。`,
-          },
-          { status: 429 }
-        );
-      }
+    if (hostedMode && requestIdentity && usedInWindow >= windowLimit) {
+      return NextResponse.json(
+        {
+          error: `当前体验版限制为同一 IP 每 ${windowHours} 小时最多查询 ${windowLimit} 次。你本时间窗口的次数已用完，请稍后再试，或使用本地开源版。`,
+        },
+        { status: 429 }
+      );
     }
 
     const sessionId = crypto.randomUUID();
@@ -142,7 +139,6 @@ export async function POST(request: NextRequest) {
     const rawRepos = await multiSearchRepos(analysis.searchQueries || [], Math.max(effectiveMaxResults, 12));
     const filteredRepos = applyFilters(rawRepos, body);
     const { safe: repos } = filterSafeRepos(filteredRepos);
-
     const readmeMap = await batchFetchReadmes(repos, 20);
     const scoredRepos = await scoreRepos({ userInput: normalizedIdea, repos, readmeMap });
     const limitedRepos = scoredRepos.slice(0, effectiveMaxResults);
@@ -181,10 +177,10 @@ export async function POST(request: NextRequest) {
       userInput: normalizedIdea,
       intentSummary: analysis.intentSummary || "",
       searchQueries: analysis.searchQueries || [],
-        scoredRepos: limitedRepos,
-        aiConclusion: promptResult.summary || "",
-        devPrompt: promptResult.devPrompt || "",
-        generatedAt: new Date().toISOString(),
+      scoredRepos: limitedRepos,
+      aiConclusion: promptResult.summary || "",
+      devPrompt: promptResult.devPrompt || "",
+      generatedAt: new Date().toISOString(),
     });
 
     await saveSearchSession(
@@ -237,6 +233,13 @@ export async function POST(request: NextRequest) {
       aiTokenEstimate: 0,
     });
 
+    const experienceUsed = hostedMode && requestIdentity ? usedInWindow + 1 : null;
+    const experienceRemaining =
+      hostedMode && typeof experienceUsed === "number"
+        ? Math.max(0, windowLimit - experienceUsed)
+        : null;
+    const showStarCta = hostedMode && experienceUsed === windowLimit;
+
     return NextResponse.json({
       sessionId,
       intentSummary: analysis.intentSummary || "",
@@ -247,15 +250,18 @@ export async function POST(request: NextRequest) {
       codexPrompt: promptResult.devPrompt || "",
       markdownReport: hostedMode && outputFormat !== "markdown" ? "" : markdownReport,
       experienceMode: hostedMode ? "hosted" : "local",
-      experienceDailyLimit: hostedMode ? dailyLimit : null,
-      experienceRemaining:
-        hostedMode && requestIdentity
-          ? Math.max(0, dailyLimit - (await countUsageSince({
-              requestType: "investigate",
-              userId: requestIdentity,
-              sinceIso: startOfTodayIso(),
-            })))
-          : null,
+      experienceWindowHours: hostedMode ? windowHours : null,
+      experienceWindowLimit: hostedMode ? windowLimit : null,
+      experienceUsed,
+      experienceRemaining,
+      starCta: showStarCta
+        ? {
+            show: true,
+            repoUrl: "https://github.com/dadaleo/DevDetective",
+            message:
+              "这已经是你当前 6 小时窗口内的第 2 次体验。如果这个方向对你有帮助，欢迎去 GitHub 给 DevDetective 点一个 Star，能帮项目走得更远。",
+          }
+        : null,
       userGoal: promptResult.userGoal || "",
       baseProject: promptResult.baseProject || "",
       whyThisProject: promptResult.whyThisProject || "",
@@ -267,7 +273,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "侦查失败";
-    console.error("/api/investigate 错误:", err);
+    console.error("/api/investigate error:", err);
 
     try {
       await logUsage({
@@ -278,7 +284,7 @@ export async function POST(request: NextRequest) {
         errorMessage: message,
       });
     } catch (logErr) {
-      console.warn("[investigate] 记录 usage log 失败:", logErr);
+      console.warn("[investigate] log usage failed:", logErr);
     }
 
     return NextResponse.json({ error: message }, { status: 500 });

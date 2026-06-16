@@ -122,8 +122,15 @@ export interface InvestigateOutput {
   codexPrompt: string;
   markdownReport?: string;
   experienceMode?: "local" | "hosted";
-  experienceDailyLimit?: number | null;
+  experienceWindowHours?: number | null;
+  experienceWindowLimit?: number | null;
+  experienceUsed?: number | null;
   experienceRemaining?: number | null;
+  starCta?: {
+    show: boolean;
+    repoUrl: string;
+    message: string;
+  } | null;
 }
 
 // ─── 示例案例 ───

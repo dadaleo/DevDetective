@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const nextConfig = {
-  // sql.js 是 WASM 模块，必须排除在 webpack 打包之外
+  basePath,
   experimental: {
     serverComponentsExternalPackages: ["sql.js"],
   },

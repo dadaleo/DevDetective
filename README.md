@@ -237,11 +237,6 @@ Returns built-in example cases.
 
 ## Screenshots | 截图展示
 
-Planned for public release:
-
-- homepage hero and input area
-- recommendation result cards
-- exported Markdown report preview
 
 <img width="1379" height="858" alt="01" src="https://github.com/user-attachments/assets/4cdf58d2-7786-4240-8874-a1607fd03d79" />
 <img width="1557" height="1320" alt="02" src="https://github.com/user-attachments/assets/e699dbb8-35e5-43e1-8080-4ba63d6776ae" />

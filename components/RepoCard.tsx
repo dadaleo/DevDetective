@@ -57,6 +57,19 @@ export default function RepoCard({ repo, rank }: Props) {
         <span>📋 {r.license?.spdx_id || "无 License"}</span>
       </div>
 
+      {r.topics?.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {r.topics.slice(0, 5).map((topic) => (
+            <span
+              key={topic}
+              className="rounded-full border border-[#2d3343] bg-[#11141c] px-2 py-1 text-[11px] text-[#8b92a5]"
+            >
+              #{topic}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Dates & Maintenance */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <MaintenanceBadge label={repo.maintenanceLabel} />

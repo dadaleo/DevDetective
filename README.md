@@ -8,6 +8,12 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-v0.1.0-informational)](./RELEASE_NOTES_v0.1.0.md)
 
+![DevDetective Banner](./docs/images/banner.svg)
+
+<p align="center">
+  <img src="./docs/images/devdetective-logo.png" alt="DevDetective logo" width="180" />
+</p>
+
 DevDetective is an open-source pre-build investigation tool for the AI coding era.  
 开发者在正式开工前，先输入产品想法，DevDetective 会搜索 GitHub 上的相似开源项目，比较维护状态、License、活跃度和可复用性，再生成可直接交给 Codex、Cursor、Claude Code 等工具的二次开发提示词。
 
@@ -177,11 +183,61 @@ Optional:
 - `NVIDIA_API_KEY`
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_NAME`
+- `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_BASE_PATH`
 
 Subpath deployment note:
 
 - set `NEXT_PUBLIC_BASE_PATH=/devdetective` when serving the app under a subpath
+
+## GitHub Topics | GitHub Topics 建议
+
+Suggested repository topics:
+
+- `github-search`
+- `open-source-discovery`
+- `developer-tools`
+- `ai-coding`
+- `codex`
+- `cursor`
+- `nextjs`
+- `repo-research`
+- `reuse-first`
+- `project-scoring`
+
+Product-level usage note:
+
+- DevDetective also reads repository `topics` as part of search relevance, similarity scoring, safety filtering, and UI display, so keeping topics clean on both this repo and candidate repos improves result quality.
+
+## Hosted Mode vs Local Mode | Hosted 与 Local 的差异
+
+| Dimension | Hosted mode | Local mode |
+| --- | --- | --- |
+| Goal | public online trial | full self-hosted or developer use |
+| Access control | per-IP usage window | controlled by your own local/server environment |
+| Result count | capped by `HOSTED_MAX_RESULTS` | uses request `maxResults` |
+| UX behavior | can show GitHub Star CTA | no hosted Star CTA path |
+| Recommended use | demo, landing page, AI2Work traffic entry | real investigation, repeat use, internal workflow |
+| Risk posture | lighter public-facing guardrails | you own the full config and operational boundary |
+
+Hosted mode is intentionally conservative. It is for quick validation and public access. Local mode is the real working mode if you want stable repeat usage, fuller control, and private API-key ownership.
+
+## sql.js Hosting Note | sql.js 托管说明
+
+This project uses `sql.js` for zero-native setup and simple local persistence, which is a good fit for:
+
+- local development
+- single-user or low-write demo hosting
+- quick self-hosted verification
+
+It is not a strong fit for higher-concurrency production hosting because:
+
+- the database is persisted through file exports rather than a multi-process database server
+- concurrent writes can become fragile under shared-host or multi-instance traffic
+- there is no built-in connection pooling, locking strategy, or operational tooling comparable to Postgres/MySQL
+- the data file lives on local filesystem semantics, which is awkward for stateless or horizontally scaled hosting
+
+For real multi-user production hosting, treat `sql.js` as a bootstrap choice and plan a proper database migration.
 
 ## Why Not Just Use GitHub Search? | 为什么不直接用 GitHub Search
 
@@ -292,6 +348,50 @@ Current status:
 - the repository already includes the skill directory, scripts, examples, and usage docs
 - the skill depends on a reachable DevDetective server plus a Python runtime with `requests`
 - before sharing it broadly, run one full install-and-call verification on a clean machine
+
+## Skill Verification | Skill 运行验证
+
+Recommended verification flow:
+
+1. Start DevDetective locally with valid `DEEPSEEK_API_KEY` and `GITHUB_TOKEN`.
+2. In `devdetective-skill/`, install Python dependencies from `requirements.txt`.
+3. Run one CLI verification call against the local server.
+4. Confirm you get search keywords, candidate repos, reuse advice, and a generated development prompt.
+5. Repeat once with `--format json` and once with a custom `--output-dir` to confirm both output paths work.
+
+Example verification commands:
+
+```bash
+cd devdetective-skill
+py -3.12 -m pip install -r requirements.txt
+py -3.12 scripts/investigate.py "我想做一个局域网文件快传网页"
+py -3.12 scripts/investigate.py "做一个本地知识库管理工具" --format json
+py -3.12 scripts/investigate.py "GitHub 工具雷达" --output-dir ./reports
+```
+
+Validation checklist:
+
+- local server reachable at `http://localhost:4567`
+- non-empty search keywords returned
+- at least one repo recommendation shown
+- generated prompt is present
+- Markdown or JSON output written successfully
+
+## Safety Filtering | 安全过滤说明
+
+DevDetective applies a lightweight safety filter before scoring and displaying repositories.
+
+Current filter behavior:
+
+- checks repository name, full name, description, and GitHub topics
+- blocks clearly sensitive or unsuitable categories such as political propaganda, NSFW, extremism, and gambling
+- runs before result presentation so hosted-mode users do not see filtered candidates
+
+Important caveats:
+
+- this is a heuristic content filter, not a legal/compliance system
+- it reduces obvious bad fits, but it does not replace human review
+- false positives and false negatives are still possible, especially when repository wording is vague
 
 ## Tech Stack | 技术栈
 

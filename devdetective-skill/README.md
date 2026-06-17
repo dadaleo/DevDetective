@@ -117,3 +117,32 @@ py -3.12 scripts/investigate.py "GitHub 工具雷达" --server http://127.0.0.1:
 - 这个 Skill 依赖本地运行中的 DevDetective 服务
 - 如果没有配置 `GITHUB_TOKEN` 或 `DEEPSEEK_API_KEY`，主流程会失败
 - 结果是“开发前侦查建议”，不是法律意见或自动决策
+
+## 运行验证
+
+建议在准备分享给其他 Agent 或团队成员之前，做一次完整验证：
+
+```bash
+cd ..
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+另开一个终端：
+
+```bash
+cd devdetective-skill
+py -3.12 -m pip install -r requirements.txt
+py -3.12 scripts/investigate.py "我想做一个局域网文件快传网页"
+py -3.12 scripts/investigate.py "做一个本地知识库管理工具" --format json
+py -3.12 scripts/investigate.py "GitHub 工具雷达" --output-dir ./reports
+```
+
+验证通过时，至少应确认：
+
+- 本地服务 `http://localhost:4567` 可访问
+- 能返回搜索关键词和候选仓库
+- 能生成开发提示词
+- `--format json` 正常输出
+- `--output-dir` 能成功落盘报告

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import DevPromptBox from "@/components/DevPromptBox";
 import FilterPanel from "@/components/FilterPanel";
@@ -235,6 +236,16 @@ export default function Home() {
 
       <section className="px-4 pb-7 pt-10 text-center sm:pt-12">
         <div className="mx-auto max-w-4xl">
+          <div className="mb-5 flex justify-center">
+            <Image
+              src={withBasePath("/devdetective-logo.png")}
+              alt="DevDetective logo"
+              width={286}
+              height={382}
+              className="h-24 w-auto sm:h-28"
+              priority
+            />
+          </div>
           <p className="mb-2 text-xs uppercase tracking-[0.28em] text-[#5c6378]">
             Search GitHub Before You Build
           </p>
@@ -284,6 +295,27 @@ export default function Home() {
               当前限制：同一 IP 每 {experienceMeta.windowHours ?? 6} 小时最多查询 {experienceMeta.windowLimit ?? 2} 次。
             </p>
           )}
+        </div>
+
+        <div className="mx-auto mb-3 grid max-w-4xl gap-3 md:grid-cols-3">
+          <div className="rounded-lg border border-[#2d3343]/50 bg-[#11141c] px-4 py-3 text-left">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#5c6378]">Hosted Mode</p>
+            <p className="mt-2 text-xs leading-6 text-[#8b92a5]">
+              闈㈠悜 AI2Work 鍦ㄧ嚎浣撻獙锛屾湁 IP 绐楀彛闄愬埗銆佺粨鏋滄暟閲忔帶鍒跺拰 Star 寮曞锛岄€傚悎蹇€熻瘯鐢ㄣ€?
+            </p>
+          </div>
+          <div className="rounded-lg border border-[#2d3343]/50 bg-[#11141c] px-4 py-3 text-left">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#5c6378]">Local Mode</p>
+            <p className="mt-2 text-xs leading-6 text-[#8b92a5]">
+              闈㈠悜鏈湴寮€婧愬畬鏁寸増锛屾洿閫傚悎鐪熷疄璋冪爺銆佸弽澶嶄娇鐢ㄥ拰鍐呴儴宸ヤ綔娴佹帴鍏ャ€?
+            </p>
+          </div>
+          <div className="rounded-lg border border-[#2d3343]/50 bg-[#11141c] px-4 py-3 text-left">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#5c6378]">Safety Filter</p>
+            <p className="mt-2 text-xs leading-6 text-[#8b92a5]">
+              鍩轰簬 repo 鍚嶇О銆佹弿杩板拰 topics 鍋氬叕寮€浣撻獙灞傜殑鍩虹杩囨护锛屽噺灏戞槑鏄剧殑涓嶉€傚悎鍐呭杩涘叆灞曠ず缁撴灉銆?
+            </p>
+          </div>
         </div>
 
         <RequirementInput onSearch={handleSearch} isLoading={isLoading} />

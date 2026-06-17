@@ -1,0 +1,38 @@
+<svg width="1600" height="520" viewBox="0 0 1600 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="60" x2="1520" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="0.45" stop-color="#111827"/>
+      <stop offset="1" stop-color="#07111F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="310" y1="120" x2="1310" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="0.5" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="520" rx="36" fill="url(#bg)"/>
+  <g opacity="0.18">
+    <circle cx="1410" cy="96" r="160" fill="#38BDF8"/>
+    <circle cx="1240" cy="432" r="180" fill="#2563EB"/>
+    <circle cx="180" cy="420" r="130" fill="#22D3EE"/>
+  </g>
+  <rect x="70" y="62" width="1460" height="396" rx="28" fill="#0B1220" fill-opacity="0.62" stroke="#334155"/>
+  <g opacity="0.92">
+    <circle cx="224" cy="260" r="98" fill="#0B1220" stroke="url(#accent)" stroke-width="14"/>
+    <circle cx="224" cy="260" r="66" fill="#111827" stroke="#60A5FA" stroke-width="8"/>
+    <path d="M193 260L168 239M193 260L168 281M255 260L280 239M255 260L280 281M210 294L238 226" stroke="#7DD3FC" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="279" y="311" width="112" height="22" rx="11" transform="rotate(45 279 311)" fill="#2563EB" stroke="#93C5FD" stroke-width="6"/>
+  </g>
+  <text x="390" y="208" fill="#E5E7EB" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="700">DevDetective</text>
+  <text x="392" y="270" fill="#7DD3FC" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="600" letter-spacing="0.16em">SEARCH GITHUB BEFORE YOU BUILD</text>
+  <text x="392" y="332" fill="#94A3B8" font-family="Segoe UI, Arial, sans-serif" font-size="30">Reuse-first investigation for Codex, Cursor, Claude Code, and fast MVP teams</text>
+  <g>
+    <rect x="392" y="372" width="168" height="44" rx="22" fill="#082F49" stroke="#38BDF8"/>
+    <text x="430" y="401" fill="#E0F2FE" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">GitHub Search</text>
+    <rect x="578" y="372" width="176" height="44" rx="22" fill="#0F3A2B" stroke="#34D399"/>
+    <text x="623" y="401" fill="#D1FAE5" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">Reuse Scoring</text>
+    <rect x="772" y="372" width="194" height="44" rx="22" fill="#172554" stroke="#60A5FA"/>
+    <text x="819" y="401" fill="#DBEAFE" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600">AI Dev Prompt</text>
+  </g>
+</svg>

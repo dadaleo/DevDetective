@@ -464,7 +464,7 @@ export default function Home() {
           <div id="ai2work" className="glass-card px-5 py-4">
             <h3 className="mb-2 text-sm font-medium text-[#8b92a5]">AI2Work 部署定位</h3>
             <p className="text-xs leading-6 text-[#5c6378]">
-              推荐部署到 `ai2work.xyz/DevDetective` 或 `devdetective.ai2work.xyz`，作为在线体验入口、案例展示页和托管版导流页。
+              推荐部署到 `ai2work.xyz/devdetective` 或 `devdetective.ai2work.xyz`，作为在线体验入口、案例展示页和托管版导流页。
             </p>
           </div>
           <p>DevDetective · 开发者侦探 · 面向 AI 编程时代的开源侦查工具</p>

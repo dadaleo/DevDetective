@@ -24,7 +24,7 @@ npm run dev
 ```ini
 DEEPSEEK_API_KEY=sk-xxx
 GITHUB_TOKEN=ghp_xxx
-NEXT_PUBLIC_BASE_PATH=/DevDetective
+NEXT_PUBLIC_BASE_PATH=/devdetective
 DATABASE_URL=./data/devdetective.sqlite
 ```
 
@@ -39,7 +39,7 @@ npm run build
 
 Recommended deployment targets:
 
-- `ai2work.xyz/DevDetective`
+- `ai2work.xyz/devdetective`
 - `devdetective.ai2work.xyz`
 
 ### Recommended deployment order
@@ -59,7 +59,7 @@ HOSTED_EXPERIENCE_MODE=true
 HOSTED_LIMIT_WINDOW_HOURS=6
 HOSTED_MAX_QUERIES_PER_WINDOW=2
 HOSTED_MAX_RESULTS=5
-NEXT_PUBLIC_BASE_PATH=/DevDetective
+NEXT_PUBLIC_BASE_PATH=/devdetective
 ```
 
 You also need:
@@ -97,7 +97,7 @@ Returned fields:
 3. Configure:
    - `DEEPSEEK_API_KEY`
    - `GITHUB_TOKEN`
-   - `NEXT_PUBLIC_BASE_PATH=/DevDetective`
+   - `NEXT_PUBLIC_BASE_PATH=/devdetective`
    - `HOSTED_EXPERIENCE_MODE=true`
    - `HOSTED_LIMIT_WINDOW_HOURS=6`
    - `HOSTED_MAX_QUERIES_PER_WINDOW=2`
@@ -118,7 +118,7 @@ Run:
 docker run -p 3000:3000 \
   -e DEEPSEEK_API_KEY=sk-xxx \
   -e GITHUB_TOKEN=ghp_xxx \
-  -e NEXT_PUBLIC_BASE_PATH=/DevDetective \
+  -e NEXT_PUBLIC_BASE_PATH=/devdetective \
   -e HOSTED_EXPERIENCE_MODE=true \
   -e HOSTED_LIMIT_WINDOW_HOURS=6 \
   -e HOSTED_MAX_QUERIES_PER_WINDOW=2 \
@@ -128,7 +128,7 @@ docker run -p 3000:3000 \
 
 If you later connect it behind the AI2Work reverse proxy, map:
 
-- `ai2work.xyz/DevDetective`
+- `ai2work.xyz/devdetective`
 - or `devdetective.ai2work.xyz`
 
 ## Before public GitHub release

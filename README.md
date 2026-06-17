@@ -108,7 +108,7 @@ DevDetective 的目标，就是把这一步前置。
 
 Live experience URL:
 
-- [https://ai2work.xyz/DevDetective](https://ai2work.xyz/DevDetective)
+- [https://ai2work.xyz/devdetective](https://ai2work.xyz/devdetective)
 
 当前仓库以本地运行和开源发布为主，同时提供 AI2Work 托管体验版用于快速试用与案例展示。
 
@@ -128,6 +128,7 @@ HOSTED_EXPERIENCE_MODE=true
 HOSTED_LIMIT_WINDOW_HOURS=6
 HOSTED_MAX_QUERIES_PER_WINDOW=2
 HOSTED_MAX_RESULTS=5
+NEXT_PUBLIC_BASE_PATH=/devdetective
 ```
 
 ## Local Setup | 本地安装
@@ -176,6 +177,26 @@ Optional:
 - `NVIDIA_API_KEY`
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_NAME`
+- `NEXT_PUBLIC_BASE_PATH`
+
+Subpath deployment note:
+
+- set `NEXT_PUBLIC_BASE_PATH=/devdetective` when serving the app under a subpath
+
+## Why Not Just Use GitHub Search? | 为什么不直接用 GitHub Search
+
+GitHub Search is a strong starting point, but it stops at retrieval. DevDetective adds a reusable pre-build investigation workflow on top of that search layer.
+
+它和直接搜 GitHub 的区别，主要在这几件事：
+
+- It turns a fuzzy product idea into structured search queries instead of making you guess the keywords manually.
+- It compares repositories through reuse-oriented signals such as maintenance freshness, license visibility, and activity, not just stars.
+- It packages the investigation result into a follow-up prompt and report that you can hand directly to Codex, Cursor, or Claude Code.
+- It keeps the "search first, build second" step consistent for agent workflows instead of relying on one-off human judgment.
+
+If you already know the exact repo you want, native GitHub Search may be enough. If you are still deciding whether to build, fork, adapt, or avoid a direction, DevDetective is the more useful layer.
+
+如果你已经知道自己要找哪个仓库，直接用 GitHub Search 往往就够了；但如果你还在判断该不该重写、该不该 fork、能否复用，DevDetective 更适合放在开工之前。
 
 说明：
 
@@ -281,6 +302,15 @@ Current status:
 - sql.js
 - GitHub REST API
 - DeepSeek API
+
+## Roadmap | 路线图
+
+- Improve ranking quality with stronger signals for recency, maintenance, and implementation fit
+- Add clearer license compatibility warnings and reuse guidance in exported reports
+- Support richer comparison views for similar repositories, tradeoffs, and suggested adoption paths
+- Expand hosted mode operations, including usage telemetry, quotas, and admin visibility
+- Make `devdetective-skill/` easier to install and verify on a clean machine
+- Add more polished public-release assets such as screenshots, sample reports, and walkthrough content
 
 ## Release Checklist | 发布前建议
 

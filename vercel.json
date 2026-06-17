@@ -8,6 +8,6 @@
     "HOSTED_LIMIT_WINDOW_HOURS": "6",
     "HOSTED_MAX_QUERIES_PER_WINDOW": "2",
     "HOSTED_MAX_RESULTS": "5",
-    "NEXT_PUBLIC_BASE_PATH": "/DevDetective"
+    "NEXT_PUBLIC_BASE_PATH": "/devdetective"
   }
 }

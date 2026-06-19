@@ -33,6 +33,7 @@ type StarCta = {
 } | null;
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const defaultExperienceMode: ExperienceMeta["mode"] = basePath === "/DevDetective" ? "hosted" : "local";
 
 function withBasePath(path: string) {
   if (!basePath) return path;
@@ -61,7 +62,9 @@ export default function Home() {
   const [repos, setRepos] = useState<ScoredRepo[]>([]);
   const [devPromptResult, setDevPromptResult] = useState<DevPromptResult | null>(null);
   const [markdownReport, setMarkdownReport] = useState("");
-  const [experienceMeta, setExperienceMeta] = useState<ExperienceMeta>({});
+  const [experienceMeta, setExperienceMeta] = useState<ExperienceMeta>({
+    mode: defaultExperienceMode,
+  });
   const [starCta, setStarCta] = useState<StarCta>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAllRepos, setShowAllRepos] = useState(false);
@@ -82,17 +85,14 @@ export default function Home() {
 
         if (!response.ok || !data.experience_mode) return;
 
-        setExperienceMeta((current) =>
-          current.mode
-            ? current
-            : {
-                mode: data.experience_mode,
-                windowHours: data.experience_window_hours ?? null,
-                windowLimit: data.experience_window_limit ?? null,
-                used: null,
-                remaining: null,
-              },
-        );
+        setExperienceMeta((current) => ({
+          ...current,
+          mode: data.experience_mode,
+          windowHours: data.experience_window_hours ?? current.windowHours ?? null,
+          windowLimit: data.experience_window_limit ?? current.windowLimit ?? null,
+          used: current.used ?? null,
+          remaining: current.remaining ?? null,
+        }));
       } catch {
         // Keep the page usable even if the lightweight status probe fails.
       }

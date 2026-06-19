@@ -12,23 +12,21 @@ interface Props {
 const TECH_STACKS = ["不限", "React", "Next.js", "Vue", "Python", "FastAPI", "Electron", "Tauri", "Node.js", "微信小程序", "CLI"];
 const PROJECT_TYPES = ["不限", "Web 应用", "桌面应用", "浏览器插件", "自动化脚本", "命令行工具", "小程序", "API 服务"];
 const UPDATE_PREFS = [
-  { value: "", label: "不限制" },
-  { value: "最近 3 个月有更新", label: "近期活跃（3 个月）" },
-  { value: "最近 6 个月有更新", label: "半年内活跃" },
-  { value: "最近 1 年有更新", label: "一年内有维护" },
-  { value: "最近 2 年有更新", label: "两年内有更新" },
+  { value: "", label: "不限" },
+  { value: "最近 3 个月有更新", label: "最近 3 个月有更新" },
+  { value: "最近 6 个月有更新", label: "最近 6 个月有更新" },
+  { value: "最近 1 年有更新", label: "最近 1 年有更新" },
+  { value: "最近 2 年有更新", label: "最近 2 年有更新" },
 ];
 const LICENSE_PREFS = ["不限", "MIT / Apache / BSD 等友好协议", "可商用协议"];
 
-function summaryLine(f: SearchFilters): string {
-  const parts: string[] = [];
-  parts.push(f.techStack && f.techStack !== "不限" ? f.techStack : "不限技术栈");
-  parts.push(f.projectType && f.projectType !== "不限" ? f.projectType : "不限应用形态");
-  parts.push(f.updatePreference || "不限制更新时间");
-  parts.push(f.licensePreference && f.licensePreference !== "不限" ? f.licensePreference : "License 不限");
-  if (f.preferRecent) parts.push("优先近期活跃");
-  if (f.preferLightweight) parts.push("优先轻量项目");
-  return parts.join(" · ");
+function buildSummary(filters: SearchFilters) {
+  return [
+    filters.techStack && filters.techStack !== "不限" ? filters.techStack : "不限技术栈",
+    filters.projectType && filters.projectType !== "不限" ? filters.projectType : "不限应用形态",
+    filters.updatePreference || "优先近期维护",
+    filters.licensePreference && filters.licensePreference !== "不限" ? filters.licensePreference : "License 不限",
+  ];
 }
 
 export default function FilterPanel({ filters, onChange, disabled }: Props) {
@@ -42,109 +40,130 @@ export default function FilterPanel({ filters, onChange, disabled }: Props) {
   const type = filters.projectType || "不限";
   const upd = filters.updatePreference || "";
   const lic = filters.licensePreference || "不限";
+  const summaryItems = buildSummary(filters);
 
   return (
-    <div className="border border-[#2d3343]/50 rounded-lg bg-[#1a1d27]/50 px-5 py-3.5">
-      {/* Collapsed summary */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="text-xs font-medium text-[#8b92a5] shrink-0">侦查偏好</span>
-          <span className="text-xs text-[#5c6378] truncate">{summaryLine(filters)}</span>
+    <div className="rounded-[20px] border border-[#2b3648]/70 bg-[#111723]/72 px-4 py-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#5d6d86]">侦查偏好</p>
+          <div className="flex flex-wrap gap-2">
+            {summaryItems.map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-[#334055] bg-[#161e2b] px-3 py-1 text-xs text-[#98a7be]"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
+
         <button
+          type="button"
           onClick={() => setExpanded(!expanded)}
           disabled={disabled}
-          className="text-xs font-medium bg-primary-500/10 hover:bg-primary-500/20 text-primary-400 hover:text-primary-300 border border-primary-500/20 hover:border-primary-500/40 px-3 py-1 rounded-md transition-all shrink-0 ml-3 flex items-center gap-1.5"
+          className="inline-flex items-center gap-2 self-start rounded-full border border-[#38506f] bg-[#162131] px-3 py-1.5 text-xs font-medium text-[#a8bee0] transition-colors hover:border-[#4d6f97] hover:text-[#d8e6ff] disabled:opacity-50"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-          {expanded ? "收起筛选" : "调整筛选"}
+          调整筛选
           <svg
-            className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
       </div>
 
-      {/* Expanded filters */}
       {expanded && (
-        <div className="mt-4 space-y-4 border-t border-[#2d3343]/40 pt-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {/* 技术方向 */}
+        <div className="mt-4 border-t border-[#283243] pt-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div>
-            <label className="block text-[11px] text-[#5c6378] mb-1.5 uppercase tracking-wider">技术方向</label>
-            <select
-              className="w-full bg-[#0f1117] border border-[#2d3343]/60 rounded-md px-2.5 py-1.5 text-xs text-[#e4e7ee] focus:outline-none focus:border-primary-500/50"
-              value={tech}
-              onChange={(e) => update("techStack", e.target.value === "不限" ? "" : e.target.value)}
-              disabled={disabled}
-            >
-              {TECH_STACKS.map((t) => (<option key={t} value={t}>{t}</option>))}
-            </select>
+              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.18em] text-[#5d6d86]">技术栈</label>
+              <select
+                className="w-full rounded-xl border border-[#334055] bg-[#0d131d] px-3 py-2 text-sm text-[#edf2ff] outline-none transition-colors focus:border-[#55c1b3]"
+                value={tech}
+                onChange={(e) => update("techStack", e.target.value === "不限" ? "" : e.target.value)}
+                disabled={disabled}
+              >
+                {TECH_STACKS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
             </div>
 
-          {/* 应用形态 */}
             <div>
-            <label className="block text-[11px] text-[#5c6378] mb-1.5 uppercase tracking-wider">应用形态</label>
-            <select
-              className="w-full bg-[#0f1117] border border-[#2d3343]/60 rounded-md px-2.5 py-1.5 text-xs text-[#e4e7ee] focus:outline-none focus:border-primary-500/50"
-              value={type}
-              onChange={(e) => update("projectType", e.target.value === "不限" ? "" : e.target.value)}
-              disabled={disabled}
-            >
-              {PROJECT_TYPES.map((t) => (<option key={t} value={t}>{t}</option>))}
-            </select>
+              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.18em] text-[#5d6d86]">应用形态</label>
+              <select
+                className="w-full rounded-xl border border-[#334055] bg-[#0d131d] px-3 py-2 text-sm text-[#edf2ff] outline-none transition-colors focus:border-[#55c1b3]"
+                value={type}
+                onChange={(e) => update("projectType", e.target.value === "不限" ? "" : e.target.value)}
+                disabled={disabled}
+              >
+                {PROJECT_TYPES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
             </div>
 
-          {/* 维护活跃度 */}
             <div>
-            <label className="block text-[11px] text-[#5c6378] mb-1.5 uppercase tracking-wider">维护活跃度</label>
-            <select
-              className="w-full bg-[#0f1117] border border-[#2d3343]/60 rounded-md px-2.5 py-1.5 text-xs text-[#e4e7ee] focus:outline-none focus:border-primary-500/50"
-              value={upd}
-              onChange={(e) => update("updatePreference", e.target.value)}
-              disabled={disabled}
-            >
-              {UPDATE_PREFS.map((t) => (<option key={t.value} value={t.value}>{t.label}</option>))}
-            </select>
+              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.18em] text-[#5d6d86]">维护偏好</label>
+              <select
+                className="w-full rounded-xl border border-[#334055] bg-[#0d131d] px-3 py-2 text-sm text-[#edf2ff] outline-none transition-colors focus:border-[#55c1b3]"
+                value={upd}
+                onChange={(e) => update("updatePreference", e.target.value)}
+                disabled={disabled}
+              >
+                {UPDATE_PREFS.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
-          {/* 授权风险 */}
             <div>
-            <label className="block text-[11px] text-[#5c6378] mb-1.5 uppercase tracking-wider">授权风险</label>
-            <select
-              className="w-full bg-[#0f1117] border border-[#2d3343]/60 rounded-md px-2.5 py-1.5 text-xs text-[#e4e7ee] focus:outline-none focus:border-primary-500/50"
-              value={lic}
-              onChange={(e) => update("licensePreference", e.target.value === "不限" ? "" : e.target.value)}
-              disabled={disabled}
-            >
-              {LICENSE_PREFS.map((t) => (<option key={t} value={t}>{t}</option>))}
-            </select>
+              <label className="mb-1.5 block text-[11px] uppercase tracking-[0.18em] text-[#5d6d86]">License</label>
+              <select
+                className="w-full rounded-xl border border-[#334055] bg-[#0d131d] px-3 py-2 text-sm text-[#edf2ff] outline-none transition-colors focus:border-[#55c1b3]"
+                value={lic}
+                onChange={(e) => update("licensePreference", e.target.value === "不限" ? "" : e.target.value)}
+                disabled={disabled}
+              >
+                {LICENSE_PREFS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="flex items-center justify-between rounded-md border border-[#2d3343]/60 bg-[#0f1117] px-3 py-2 text-xs text-[#8b92a5]">
-              <span>优先近期活跃仓库</span>
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            <label className="flex items-center justify-between rounded-xl border border-[#2d394c] bg-[#101722] px-3 py-2.5 text-sm text-[#97a4ba]">
+              <span>优先近期维护仓库</span>
               <input
                 type="checkbox"
                 checked={!!filters.preferRecent}
                 onChange={(e) => update("preferRecent", e.target.checked)}
                 disabled={disabled}
-                className="h-3.5 w-3.5 accent-[#4f8cff]"
+                className="h-4 w-4 accent-[#4a92ff]"
               />
             </label>
-            <label className="flex items-center justify-between rounded-md border border-[#2d3343]/60 bg-[#0f1117] px-3 py-2 text-xs text-[#8b92a5]">
+            <label className="flex items-center justify-between rounded-xl border border-[#2d394c] bg-[#101722] px-3 py-2.5 text-sm text-[#97a4ba]">
               <span>优先轻量易改项目</span>
               <input
                 type="checkbox"
                 checked={!!filters.preferLightweight}
                 onChange={(e) => update("preferLightweight", e.target.checked)}
                 disabled={disabled}
-                className="h-3.5 w-3.5 accent-[#4f8cff]"
+                className="h-4 w-4 accent-[#4a92ff]"
               />
             </label>
           </div>

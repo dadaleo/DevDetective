@@ -212,8 +212,8 @@ export default function Home() {
 
   const hostedStatusText =
     experienceMeta.mode === "hosted"
-      ? `当前窗口已用 ${experienceMeta.used ?? 0} / ${experienceMeta.windowLimit ?? 0} 次，剩余 ${experienceMeta.remaining ?? 0} 次`
-      : "当前为本地完整模式";
+      ? "当前为在线体验模式：适合快速验证需求方向，完整能力可在 GitHub 本地运行。"
+      : "当前为本地完整版模式：使用你自己的 GitHub Token 和 AI API Key 运行。";
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#17304d_0%,#0f1117_38%,#0b0e14_100%)]">
@@ -537,23 +537,17 @@ export default function Home() {
       )}
 
       <section id="details" className="px-4 pb-14">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-4 md:grid-cols-3">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-4 md:grid-cols-2">
           <div className="rounded-[22px] border border-[#2a394d] bg-[#111722]/82 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#62748d]">Card 01</p>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#62748d]">For AI Agents</p>
             <h3 className="mt-2 text-lg font-semibold text-[#eef3ff]">Codex / Agent Skill</h3>
-            <p className="mt-3 text-sm leading-7 text-[#97a4ba]">让 Agent 在写代码前先做 GitHub 侦查。</p>
+            <p className="mt-3 text-sm leading-7 text-[#97a4ba]">让 Agent 在写代码前先做 GitHub 侦查。将 Skill 配置到 Cursor / Claude Code / Codex 等工具中，开发新功能时自动触发搜索相似开源项目，避免从零造轮子。</p>
           </div>
 
           <div className="rounded-[22px] border border-[#2a394d] bg-[#111722]/82 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#62748d]">Card 02</p>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#62748d]">Online Access</p>
             <h3 className="mt-2 text-lg font-semibold text-[#eef3ff]">AI2Work Hosted Demo</h3>
-            <p className="mt-3 text-sm leading-7 text-[#97a4ba]">作为在线体验入口、案例展示页和托管版导流页。</p>
-          </div>
-
-          <div className="rounded-[22px] border border-[#2a394d] bg-[#111722]/82 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#62748d]">Card 03</p>
-            <h3 className="mt-2 text-lg font-semibold text-[#eef3ff]">Local / Open Source</h3>
-            <p className="mt-3 text-sm leading-7 text-[#97a4ba]">适合团队内部持续调研、二次开发和私有部署验证。</p>
+            <p className="mt-3 text-sm leading-7 text-[#97a4ba]">在线体验入口、案例展示页和托管版导流页。无需配置即可试用核心侦查流程，完整能力建议本地或团队私有部署。</p>
           </div>
         </div>
       </section>

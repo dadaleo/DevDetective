@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DevPromptBox from "@/components/DevPromptBox";
 import FilterPanel from "@/components/FilterPanel";
 import RepoCard from "@/components/RepoCard";
@@ -69,6 +69,37 @@ export default function Home() {
   const isLoading = phase === "investigating";
   const top3 = useMemo(() => repos.slice(0, 3), [repos]);
   const visibleRepos = useMemo(() => (showAllRepos ? repos : repos.slice(0, 5)), [repos, showAllRepos]);
+
+  useEffect(() => {
+    async function loadExperienceMeta() {
+      try {
+        const response = await fetch(withBasePath("/api/health"));
+        const data = (await response.json()) as {
+          experience_mode?: "local" | "hosted";
+          experience_window_hours?: number | null;
+          experience_window_limit?: number | null;
+        };
+
+        if (!response.ok || !data.experience_mode) return;
+
+        setExperienceMeta((current) =>
+          current.mode
+            ? current
+            : {
+                mode: data.experience_mode,
+                windowHours: data.experience_window_hours ?? null,
+                windowLimit: data.experience_window_limit ?? null,
+                used: null,
+                remaining: null,
+              },
+        );
+      } catch {
+        // Keep the page usable even if the lightweight status probe fails.
+      }
+    }
+
+    void loadExperienceMeta();
+  }, []);
 
   const handleSearch = async (input: string) => {
     setUserInput(input);

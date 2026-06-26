@@ -190,24 +190,6 @@ Subpath deployment note:
 
 - set `NEXT_PUBLIC_BASE_PATH=/devdetective` when serving the app under a subpath
 
-## GitHub Topics | GitHub Topics 建议
-
-Suggested repository topics:
-
-- `github-search`
-- `open-source-discovery`
-- `developer-tools`
-- `ai-coding`
-- `codex`
-- `cursor`
-- `nextjs`
-- `repo-research`
-- `reuse-first`
-- `project-scoring`
-
-Product-level usage note:
-
-- DevDetective also reads repository `topics` as part of search relevance, similarity scoring, safety filtering, and UI display, so keeping topics clean on both this repo and candidate repos improves result quality.
 
 ## Hosted Mode vs Local Mode | Hosted 与 Local 的差异
 
